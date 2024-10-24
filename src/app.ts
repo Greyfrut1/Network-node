@@ -1,15 +1,13 @@
 import express from 'express';
-import { json } from 'body-parser';
-import routes from './routes';
+import userRoutes from './routes/userRoutes';
+import { errorHandler } from './middlewares/errorMiddleware';
 
 const app = express();
 
-app.use(json());
+app.use(express.json()); // Парсинг JSON
 
-app.use('/api', routes);
+app.use('/api', userRoutes); // Маршрути
 
-const PORT = process.env.PORT || 3001;
+app.use(errorHandler); // Обробка помилок
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+export default app;
