@@ -1,4 +1,5 @@
 import { getAllUsersFromDB, insertUserToDB, verifyPassword } from '../models/userModel';
+import { generateToken } from '../utils/jwt';
 
 // Визначаємо інтерфейси
 interface UserInput {
@@ -12,6 +13,11 @@ interface UserResponse {
   name: string;
   email: string;
   created_at: Date;
+}
+
+interface LoginResponse {
+  user: UserResponse;
+  token: string;
 }
 
 interface LoginCredentials {
@@ -52,11 +58,27 @@ export class UserService {
   }
 
   // Логін користувача
-  static async loginUser(credentials: LoginCredentials): Promise<UserResponse> {
+  static async loginUser(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
       const { email, password } = credentials;
       const user = await verifyPassword(email, password);
-      return user;
+
+      // Генеруємо токен після успішної верифікації
+      const token = generateToken({
+        userId: user.id,
+        email: user.email
+      });
+
+      // Повертаємо об'єкт з токеном та даними користувача
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          created_at: user.created_at
+        },
+        token
+      };
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Login failed: ${error.message}`);
