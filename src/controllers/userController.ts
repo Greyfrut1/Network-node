@@ -80,3 +80,17 @@ export const authMiddleware = async (req: Request, res: Response, next: Function
     });
   }
 };
+
+export const profileUser = async (req: Request, res: Response) =>{
+    try{
+      const userId = req.params.userId;
+
+      const UserData = await UserService.getUserProfile(String(userId));
+      res.status(200).json(UserData);
+    } catch (err) {
+      res.status(404).json({
+        status: 'error',
+        message: '404'
+      });
+    }
+};

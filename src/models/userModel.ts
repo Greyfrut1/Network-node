@@ -71,3 +71,8 @@ export const verifyPassword = async (email: string, password: string) => {
     throw new Error('An unexpected error occurred');
   }
 };
+
+export const getUserProfileInfo = async (userID: string) => {
+  const res = await pool.query(`SELECT * FROM users WHERE id = $1`, [userID]);
+  return res.rows;
+};

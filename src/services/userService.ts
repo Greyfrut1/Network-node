@@ -1,4 +1,4 @@
-import { getAllUsersFromDB, insertUserToDB, verifyPassword } from '../models/userModel';
+import { getAllUsersFromDB, insertUserToDB, verifyPassword, getUserProfileInfo } from '../models/userModel';
 import { generateToken } from '../utils/jwt';
 
 // Визначаємо інтерфейси
@@ -108,5 +108,18 @@ export class UserService {
   private static isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  static async getUserProfile(userId: string): Promise<UserResponse[]> {
+    try {
+      const userProfileData = await getUserProfileInfo(userId);
+      // Видаляємо password_hash з відповіді
+      return userProfileData.map(({ password_hash, ...user }) => user);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to get users: ${error.message}`);
+      }
+      throw new Error('Failed to get users');
+    }
   }
 }
