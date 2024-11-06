@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/userService';
 import { verifyToken } from '../utils/jwt';
 
@@ -53,44 +53,63 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 // Middleware для перевірки авторизації
-export const authMiddleware = async (req: Request, res: Response, next: Function) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'No token provided'
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = verifyToken(token);
-
-    // Можна додати перевірку користувача в базі даних
-    // const user = await UserService.getUserById(decoded.userId);
-
-    // Додаємо дані користувача до запиту
-    req.user = decoded;
-    next();
-  } catch (err) {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({
       status: 'error',
-      message: 'Invalid token'
+      message: 'No token provided',
+    });
+    return; // Оскільки ми відправляємо відповідь, не потрібно викликати next()
+  }
+
+  const token = authHeader.split(' ')[1];
+  
+  try {
+    const decoded = verifyToken(token);
+    (req as any).user = decoded;
+    next(); // Далі передаємо керування на наступний middleware або маршрут
+  } catch (error) {
+    res.status(401).json({
+      status: 'error',
+      message: 'Invalid or expired token',
     });
   }
 };
-
 export const profileUser = async (req: Request, res: Response) =>{
     try{
       const userId = req.params.userId;
 
       const UserData = await UserService.getUserProfile(String(userId));
-      res.status(200).json(UserData);
+      if(UserData.length > 0){
+        res.status(200).json(UserData);
+      }
+      else{
+        res.status(404).json({
+          status: 'error',
+          message: '404'
+        });
+      }
+
     } catch (err) {
       res.status(404).json({
         status: 'error',
         message: '404'
       });
     }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    console.log('test')
+    const userId = (req as any).user.userId;
+    console.log(req)
+    const userData = await UserService.getUserProfile(String(userId));
+    res.status(200).json(userData);
+  } catch (err) {
+    res.status(404).json({
+      status: 'error',
+      message: 'User not found',
+    });
+  }
 };

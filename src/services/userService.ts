@@ -68,7 +68,6 @@ export class UserService {
         userId: user.id,
         email: user.email
       });
-
       // Повертаємо об'єкт з токеном та даними користувача
       return {
         user: {
