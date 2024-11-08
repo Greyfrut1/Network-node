@@ -7,7 +7,8 @@ export const createUserTables = async () => {
       name VARCHAR(100) NOT NULL,
       email VARCHAR(100) UNIQUE NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      profile_photo_url VARCHAR(255)
     );
     `;
     try {

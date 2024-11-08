@@ -1,4 +1,4 @@
-import { getAllUsersFromDB, insertUserToDB, verifyPassword, getUserProfileInfo } from '../models/userModel';
+import { getAllUsersFromDB, insertUserToDB, verifyPassword, getUserProfileInfo, editProfileInfo } from '../models/userModel';
 import { generateToken } from '../utils/jwt';
 
 // Визначаємо інтерфейси
@@ -23,6 +23,17 @@ interface LoginResponse {
 interface LoginCredentials {
   email: string;
   password: string;
+}
+
+interface UserProfile {
+  name: string;
+  email: string;
+}
+
+interface EditProfileData {
+  name: string;
+  email: string;
+  avatar?: string;
 }
 
 export class UserService {
@@ -121,4 +132,19 @@ export class UserService {
       throw new Error('Failed to get users');
     }
   }
+
+static async editProfile(ProfileData: EditProfileData, userId: string) {
+  try {
+    if (ProfileData.email && !this.isValidEmail(ProfileData.email)) {
+      throw new Error('Invalid email format');
+    }
+
+    const updatedUser = await editProfileInfo(userId, ProfileData);
+    return updatedUser;
+  } catch (err) {
+    console.log(err);
+    throw new Error('Server Error');
+  }
 }
+}
+

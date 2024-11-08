@@ -101,9 +101,7 @@ export const profileUser = async (req: Request, res: Response) =>{
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-    console.log('test')
     const userId = (req as any).user.userId;
-    console.log(req)
     const userData = await UserService.getUserProfile(String(userId));
     res.status(200).json(userData);
   } catch (err) {
@@ -113,3 +111,25 @@ export const getUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const editProfile = async (req: Request, res: Response) => {
+  try {
+    console.log('test')
+    console.log(req.file)
+    const userId = (req as any).user.userId;
+    const { name, email } = req.body;
+    const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+    console.log(userId, req.body, avatar);
+
+    const updatedUser = await UserService.editProfile({ name, email, avatar }, userId);
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      status: 'error',
+      message: 'User not found',
+    });
+  }
+};
+

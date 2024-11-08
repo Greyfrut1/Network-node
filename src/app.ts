@@ -8,10 +8,10 @@ const app = express();
 app.use(cors({ origin: process.env.FRONT_URL || 'http://localhost:3000' }));
 
 
-app.use(express.json()); // Парсинг JSON
+app.use(express.json());
 
-app.use('/api', userRoutes); // Маршрути
+app.use('/api', userRoutes);
 
-app.use(errorHandler); // Обробка помилок
+app.use(errorHandler);
 
 export default app;

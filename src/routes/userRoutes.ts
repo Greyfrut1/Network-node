@@ -1,14 +1,17 @@
 import { Router } from 'express';
-import { getAllUsers, addUser, loginUser, profileUser, getUser, authMiddleware } from '../controllers/userController';
+import { getAllUsers, addUser, loginUser, profileUser, getUser, authMiddleware, editProfile } from '../controllers/userController';
+import { upload } from '../middlewares/upload';
+
 
 const router = Router();
 
-router.get('/users', getAllUsers); // Не потребує авторизації
-router.post('/register', addUser); // Не потребує авторизації
-router.post('/login', loginUser);  // Не потребує авторизації
+router.get('/users', getAllUsers);
+router.post('/register', addUser);
+router.post('/login', loginUser);
 
 // Захищені маршрути
-router.get('/profile/:userId', authMiddleware, profileUser);  // Тепер захищений
-router.get('/user', authMiddleware, getUser);  // Тепер захищений
+router.get('/profile/:userId', authMiddleware, profileUser);
+router.get('/user', authMiddleware, getUser);
+router.post('/settings/profile', authMiddleware, upload.single('image'), editProfile);
 
 export default router;

@@ -10,6 +10,12 @@ interface User {
   created_at: Date;
 }
 
+interface EditProfileData {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 interface PostgresError extends Error {
   code?: string;
 }
@@ -75,4 +81,21 @@ export const verifyPassword = async (email: string, password: string) => {
 export const getUserProfileInfo = async (userID: string) => {
   const res = await pool.query(`SELECT * FROM users WHERE id = $1`, [userID]);
   return res.rows;
+};
+
+export const editProfileInfo = async (userId: string, ProfileData: EditProfileData) => {
+  try {
+    const query = `
+      UPDATE users 
+      SET name = $1, email = $2, profile_photo_url = COALESCE($3, profile_photo_url)
+      WHERE id = $4
+      RETURNING *`;
+    const values = [ProfileData.name, ProfileData.email, ProfileData.avatar || null, userId];
+
+    const res = await pool.query(query, values);
+    return res.rows[0];
+  } catch (err) {
+    console.log(err);
+    throw new Error('Model server error');
+  }
 };
