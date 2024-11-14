@@ -12,6 +12,9 @@ app.use(express.json());
 
 app.use('/api', userRoutes);
 
+app.use('/uploads', express.static('uploads'));
+
+
 app.use(errorHandler);
 
 export default app;
